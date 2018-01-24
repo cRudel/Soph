@@ -1,5 +1,4 @@
 /*
-Kaitlynn Prescott
 my_int.c
 Prints an integer to the console. Do not write recursively. 
 Do not use arrays. Must accept negatives. 
