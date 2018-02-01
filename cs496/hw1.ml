@@ -85,8 +85,36 @@
 	| h::t -> 
 	
 
-	
+(*	2.2.	remAdjDups that removes adjacent duplicates from a list. Eg.remAdjDups [1;1;2;3;3;1;4;4;4] should return [1;2;3;1;4]. *)
 
+	(* remAdjDups: 'a list -> 'a list *)
+	let rec remAdjDups xs = 
+	match xs with
+	[] -> [];
+	| h::s::t -> if h=s then h::remAdjDups t
+	else h::s::remAdjDups t
+
+(* 2.3		sublists that computes all the sublists of a list, in any order. Eg.sublists [1;2;3]should produce[[]; [1];[2];[1;2];[3];[1;3];[2;3];[1;2;3]]. Note that, a sublist resultsfrom a list by dropping any number of its elements (without rearranging them). *)
+
+	(* sublists: 'a list -> 'a list list *)
+	let rec sublists l =
+	match l with
+	[] -> [[]]
+	| x::xs -> let ls = sublists xs in 
+				List.map(fun l->x::l) ls @ls;;
+
+
+(*		Exercise 3, this is given: *)
+type calcExp = 
+| Const of int
+| Add of (calcExp*calcExp)
+| Sub of (calcExp*calcExp)
+| Mult of (calcExp*calcExp)
+| Div of (calcExp*calcExp)
+
+(* 3.1  Define mapC, a map for calculator expressions. Eg.mapC (fun x -> x + 1) e2 should return Add(Sub(Const(3), Const(4)), Const(5)). *)
+
+	let mapC 
 
 
 
