@@ -1,5 +1,4 @@
 /*
-Kaitlynn Prescott
 my_revstr.c
 Reverse the string, directly in the actual string, 
 without creating a new string. 
