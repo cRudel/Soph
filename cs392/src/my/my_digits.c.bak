@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_digits.c
 Prints all the numbers 0 to 9. 
 This function should have no variables larger than a byte.

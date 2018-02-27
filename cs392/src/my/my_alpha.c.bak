@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_aplha.c
 Prints all the letters A to Z, in upper case. 
 This function should have no variables larger than a byte. 

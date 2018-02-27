@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_strlen.c
 Calculates the length of a string (not including the null terminator). 
 Length of NULL is -1.

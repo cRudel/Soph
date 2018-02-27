@@ -1,4 +1,3 @@
-/* Kaitlynn Prescott*/
 #include "my.h"
 
 char* my_strrfind(char* arr, char c)

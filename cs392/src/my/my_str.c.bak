@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_str.c
 Prints a NULL terminated C string to the console. 
 Do nothing if given NULL.

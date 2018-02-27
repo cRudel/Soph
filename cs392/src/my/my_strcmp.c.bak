@@ -1,3 +1,4 @@
+/* Kaitlynn Prescott*/
 #include "my.h"
 
 int my_strcmp(char* a, char* b)

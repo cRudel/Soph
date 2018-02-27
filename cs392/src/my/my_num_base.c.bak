@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_num_base.c
 Prints a number using the length of the string as the base 
 and the contents as the alphabet. For example, 

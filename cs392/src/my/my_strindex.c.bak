@@ -1,4 +1,5 @@
 /*
+Kaitlynn Prescott
 my_strindex.c
 Returns the first index at which the character is 
 found in the string or -1 if there is none.
