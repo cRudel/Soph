@@ -1,7 +1,7 @@
 open OUnit2
 open Ast
 open Ds
-open Interp
+open Main
 
 (* A few test cases *)
 let tests = [

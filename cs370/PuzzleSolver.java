@@ -31,9 +31,20 @@ public class PuzzleSolver
 	   
  }
 
-   public int solve(Square[] s)
+   public void solve(Square[] s)
     {
-	
+	permute("", "012345678");
+	int size = solutions.size();
+	if(size == 0)
+	{
+	    System.out.println("No solutions found.");
+	    return;
+	}
+	if(size == 1)
+	    System.out.println("Unique solution found:\n");
+	if(size > 1)
+	    System.out.println("Unique solutions found:\n");
+	drawSolution	
 	return 0;
     }
    

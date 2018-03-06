@@ -43,14 +43,25 @@ rule read =
   | "/"         { DIVIDED }
   | "("         { LPAREN }
   | ")"         { RPAREN }
+  | "{"         { LBRACE }
+  | "}"         { RBRACE }
+  | ";"         { SEMICOLON }
   | ","         { COMMA }
   | "let"       { LET }
   | "="         { EQUALS }
   | "in"        { IN }
+  | "proc"      { PROC }
   | "zero?"     { ISZERO }
   | "if"        { IF }
   | "then"      { THEN }
   | "else"      { ELSE }
+  | "letrec"    { LETREC }
+  | "set"       { SET }
+  | "begin"     { BEGIN }
+  | "end"       { END }
+  | "newref"    { NEWREF }
+  | "deref"     { DEREF }
+  | "setref"    { SETREF }
   | "cons"      { CONS }
   | "hd"        { HD }
   | "tl"        { TL }

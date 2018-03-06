@@ -27,13 +27,24 @@ open Ast
 %token DIVIDED
 %token LPAREN
 %token RPAREN
+%token LBRACE
+%token RBRACE
 %token LET
 %token EQUALS
 %token IN
+%token PROC
 %token ISZERO
 %token IF
 %token THEN
 %token ELSE
+%token LETREC
+%token SET
+%token BEGIN
+%token END
+%token NEWREF
+%token DEREF
+%token SETREF
+%token SEMICOLON
 %token EMPTYLIST
 %token CONS
 %token HD
@@ -54,10 +65,10 @@ open Ast
    Because PLUS has higher precedence than IN, "let x=1 in x+2" will
    parse as "let x=1 in (x+2)" and not as "(let x=1 in x)+2". *)
 
-%nonassoc IN ELSE            /* lowest precedence */
+%nonassoc IN ELSE EQUALS            /* lowest precedence */
 %left PLUS MINUS
 %left TIMES DIVIDED    /* highest precedence */
-                          (* %nonassoc UMINUS        /* highest precedence */ *)
+(* %nonassoc UMINUS /* highest precedence */ *)
 
 (* After declaring associativity and precedence, we need to declare what
    the starting point is for parsing the language.  The following
@@ -97,8 +108,8 @@ open Ast
    the resulting value to [e].  The action simply says to return that value [e]. *)
 
 prog:
-    | e = expr; EOF { e }
-    ;
+  | e = expr; EOF { e }
+  ;
 
 (* The second rule, named [expr], has productions for integers, variables,
    addition expressions, let expressions, and parenthesized expressions.
@@ -126,24 +137,38 @@ prog:
      expression is bound to [e] and returned. *)
 
 expr:
-    | i = INT { Int i }
-    | x = ID { Var x }
-    | e1 = expr; PLUS; e2 = expr { Add(e1,e2) }
-    | e1 = expr; MINUS; e2 = expr { Sub(e1,e2) }
-    | e1 = expr; TIMES; e2 = expr { Mul(e1,e2) }
-    | e1 = expr; DIVIDED; e2 = expr { Div(e1,e2) }
-    | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let(x,e1,e2) }
-    | ISZERO; LPAREN; e = expr; RPAREN { IsZero(e) }
-    | ABS; LPAREN; e = expr; RPAREN { Abs(e) }
-    | EMPTYLIST { EmptyList }
-    | HD; LPAREN; e = expr; RPAREN { Hd(e) }
-    | TL; LPAREN; e = expr; RPAREN { Tl(e) }
-    | NULL; LPAREN; e = expr; RPAREN { Null(e) }
-    | CONS; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { Cons(e1, e2) }
-    | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { ITE(e1,e2,e3) }
-    | LPAREN; e = expr; RPAREN {e}
-      (*    | MINUS e = expr %prec UMINUS { Sub(Int 0,e) } *)
-    | LPAREN; MINUS e = expr; RPAREN  { Sub(Int 0, e) }
-    ;
+  | i = INT { Int i }
+  | x = ID { Var x }
+  | e1 = expr; PLUS; e2 = expr { Add(e1,e2) }
+  | e1 = expr; MINUS; e2 = expr { Sub(e1,e2) }
+  | e1 = expr; TIMES; e2 = expr { Mul(e1,e2) }
+  | e1 = expr; DIVIDED; e2 = expr { Div(e1,e2) }
+  | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let(x,e1,e2) }
+  | LETREC; decs = nonempty_list(letrecdec); IN; e2 = expr { Letrec(decs, e2) }
+  | PROC; LPAREN; x = ID; RPAREN; LBRACE; e = expr; RBRACE { Proc(x,e) }
+  | LPAREN; e1 = expr; e2 = expr; RPAREN { App(e1,e2) }
+  | ISZERO; LPAREN; e = expr; RPAREN { IsZero(e) }
+  | NEWREF; LPAREN; e = expr; RPAREN { NewRef(e) }
+  | DEREF; LPAREN; e = expr; RPAREN { DeRef(e) }
+  | SETREF; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { SetRef(e1,e2) }
+  | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { ITE(e1,e2,e3) }
+  | SET; x = ID; EQUALS; e = expr { Set(x,e) }
+  | BEGIN; es = exprs; END { BeginEnd(es) }
+  | LPAREN; e = expr; RPAREN {e}
+  (* | MINUS e = expr %prec UMINUS { Sub(Int 0, e) } *)
+  | LPAREN; MINUS e = expr; RPAREN  { Sub(Int 0, e) }
+  | ABS; LPAREN; e = expr; RPAREN { Abs(e) }
+  | EMPTYLIST { EmptyList }
+  | HD; LPAREN; e = expr; RPAREN { Hd(e) }
+  | TL; LPAREN; e = expr; RPAREN { Tl(e) }
+  | NULL; LPAREN; e = expr; RPAREN { Null(e) }
+  | CONS; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { Cons(e1, e2) }
+  ;
+
+letrecdec:
+  x = ID; LPAREN; y = ID; RPAREN; EQUALS; e1 = expr { Dec(x, y, e1) } ;
+
+exprs:
+  es = separated_list(SEMICOLON, expr)    { es } ;
 
 (* And that's the end of the grammar definition. *)

@@ -23,4 +23,4 @@ let rec repl (mode:string):unit =
 
 (* "Main program" *)
 (*   let () = repl "e" *)
-let () = repl "e"
+let main () = repl "e"
