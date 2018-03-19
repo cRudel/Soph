@@ -6,6 +6,19 @@
 #include <limits.h>
 #include <stdbool.h>
 
+int binarySearch(int key, char[] values, int increasing, int low, int high)
+{
+    while(low <= high)
+    {
+	int mid = low + (high - low) / 2;
+	if(key > values[increasing[mid]])
+	    low = mid + 1;
+	else
+	    high = mid - 1;
+	return low;
+    }
+}
+
 int longestIncreasingSubsequence(int arr_size, int* arr) 
 {
     int longest = 0;

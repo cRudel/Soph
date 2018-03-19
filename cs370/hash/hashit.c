@@ -133,13 +133,14 @@ int main()
 	   else if(op != NULL && strncmp(op, "DEL:", 4) == 0)
 	      delete_key(s,&op[4]);
 	   
-	   free(op);
       }
       printf("%d\n", s->num_keys);
       display_keys(s);
       sleep(0);
       clear_table(s);
-   } 
+   }
+ 	free(op);
+
    for(int i=0; i< TABLE_SIZE; i++)
 	free(s->keys[i]); 
    free(s); /* I think this is all i have to free */

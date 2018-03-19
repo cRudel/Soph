@@ -1,3 +1,11 @@
+(*
+*	Christopher Rudel
+*	ds.ml
+*	I pledge my honor that I have abided by the Stevens Honor System
+*
+*)
+
+
 (* This file defines expressed values and environments *)
 
 
@@ -24,8 +32,8 @@ and
 let rec find_dec (decs:(Ast.dec list)) (id:string):(Ast.dec option) =
   match decs with
   | [] -> None
-  | Ast.Dec(name, var, body)::_ when name = id -> failwith "Implement me"
-  | Ast.Dec(name, var, body)::rest -> failwith "Implement me"
+  | Ast.Dec(name, var, body)::_ when name = id -> Some (Ast.Dec(name, var, body)) (*Thanks for the hint *)
+  | Ast.Dec(name, var, body)::rest -> find_dec rest id
 
 let rec lookup (env:env) (id:string):exp_val =
   match env with
