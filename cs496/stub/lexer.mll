@@ -4,6 +4,7 @@
 
 {
 open Parser
+
 }
 
 (* The second section of the lexer definition defines *identifiers*
@@ -36,40 +37,37 @@ let id = letter+
 
 rule read =
   parse
-  | white       { read lexbuf }
-  | "+"         { PLUS }
-  | "-"         { MINUS }
-  | "*"         { TIMES }
-  | "/"         { DIVIDED }
-  | "("         { LPAREN }
-  | ")"         { RPAREN }
-  | "{"         { LBRACE }
-  | "}"         { RBRACE }
-  | ";"         { SEMICOLON }
-  | ","         { COMMA }
-  | "let"       { LET }
-  | "="         { EQUALS }
-  | "in"        { IN }
-  | "proc"      { PROC }
-  | "zero?"     { ISZERO }
-  | "if"        { IF }
-  | "then"      { THEN }
-  | "else"      { ELSE }
-  | "letrec"    { LETREC }
-  | "set"       { SET }
-  | "begin"     { BEGIN }
-  | "end"       { END }
-  | "newref"    { NEWREF }
-  | "deref"     { DEREF }
-  | "setref"    { SETREF }
-  | "cons"      { CONS }
-  | "hd"        { HD }
-  | "tl"        { TL }
-  | "null?"     { NULL }
-  | "abs"       { ABS }
-  | "emptylist" { EMPTYLIST }
-  | id          { ID (Lexing.lexeme lexbuf) }
-  | int         { INT (int_of_string (Lexing.lexeme lexbuf)) }
-  | eof         { EOF }
+  | white    { read lexbuf }
+  | "+"      { PLUS }
+  | "-"      { MINUS }
+  | "*"      { TIMES }
+  | "/"      { DIVIDED }
+  | "("      { LPAREN }
+  | ")"      { RPAREN }
+  | "{"      { LBRACE }
+  | "}"      { RBRACE }
+  | ";"      { SEMICOLON }
+  | ","      { COMMA }
+  | "let"    { LET }
+  | "="      { EQUALS }
+  | "in"     { IN }
+  | "proc"   { PROC }
+  | "zero?"  { ISZERO }
+  | "if"     { IF }
+  | "then"   { THEN }
+  | "else"   { ELSE }
+  | "letrec" { LETREC }
+  | "set"    { SET }
+  | "begin"  { BEGIN }
+  | "end"    { END }
+  | "newref" { NEWREF }
+  | "deref"  { DEREF }
+  | "setref" { SETREF }
+  | "for"    { FOR }
+  | "to"     { TO }
+  | "debug"  { DEBUG }
+  | id       { ID (Lexing.lexeme lexbuf) }
+  | int      { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | eof      { EOF }
 
 (* And that's the end of the lexer definition. *)

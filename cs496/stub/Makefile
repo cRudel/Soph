@@ -9,10 +9,10 @@ clean:
 	$(OCB) -clean
 
 byte:
-	$(OCB) main.byte
+	$(OCB) repl.byte
 
 repl: byte
-	./main.byte
+	./repl.byte
 
 utop: byte
 	utop

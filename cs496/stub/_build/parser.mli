@@ -2,7 +2,7 @@
 (* The type of tokens. *)
 
 type token = 
-  | TL
+  | TO
   | TIMES
   | THEN
   | SETREF
@@ -12,7 +12,6 @@ type token =
   | RBRACE
   | PROC
   | PLUS
-  | NULL
   | NEWREF
   | MINUS
   | LPAREN
@@ -24,18 +23,16 @@ type token =
   | IN
   | IF
   | ID of (string)
-  | HD
+  | FOR
   | EQUALS
   | EOF
   | END
-  | EMPTYLIST
   | ELSE
   | DIVIDED
   | DEREF
-  | CONS
+  | DEBUG
   | COMMA
   | BEGIN
-  | ABS
 
 (* This exception is raised by the monolithic API functions. *)
 
@@ -43,4 +40,4 @@ exception Error
 
 (* The monolithic API. *)
 
-val prog: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Ast.expr)
+val prog: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Ast.prog)

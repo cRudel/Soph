@@ -45,12 +45,9 @@ open Ast
 %token DEREF
 %token SETREF
 %token SEMICOLON
-%token EMPTYLIST
-%token CONS
-%token HD
-%token TL
-%token NULL
-%token ABS
+%token FOR
+%token TO
+%token DEBUG
 %token COMMA
 %token EOF
 
@@ -68,7 +65,8 @@ open Ast
 %nonassoc IN ELSE EQUALS            /* lowest precedence */
 %left PLUS MINUS
 %left TIMES DIVIDED    /* highest precedence */
-(* %nonassoc UMINUS /* highest precedence */ *)
+                          (*%nonassoc UMINUS        /* highest precedence */*)
+
 
 (* After declaring associativity and precedence, we need to declare what
    the starting point is for parsing the language.  The following
@@ -76,7 +74,7 @@ open Ast
    The declaration also says that parsing a [prog] will return an OCaml
    value of type [Ast.expr]. *)
 
-%start <Ast.expr> prog
+%start <Ast.prog> prog
 
 (* The following %% ends the declarations section of the grammar definition. *)
 
@@ -108,8 +106,8 @@ open Ast
    the resulting value to [e].  The action simply says to return that value [e]. *)
 
 prog:
-  | e = expr; EOF { e }
-  ;
+	| e = expr; EOF { AProg e }
+	;
 
 (* The second rule, named [expr], has productions for integers, variables,
    addition expressions, let expressions, and parenthesized expressions.
@@ -137,38 +135,31 @@ prog:
      expression is bound to [e] and returned. *)
 
 expr:
-  | i = INT { Int i }
-  | x = ID { Var x }
-  | e1 = expr; PLUS; e2 = expr { Add(e1,e2) }
-  | e1 = expr; MINUS; e2 = expr { Sub(e1,e2) }
-  | e1 = expr; TIMES; e2 = expr { Mul(e1,e2) }
-  | e1 = expr; DIVIDED; e2 = expr { Div(e1,e2) }
-  | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let(x,e1,e2) }
-  | LETREC; decs = nonempty_list(letrecdec); IN; e2 = expr { Letrec(decs, e2) }
-  | PROC; LPAREN; x = ID; RPAREN; LBRACE; e = expr; RBRACE { Proc(x,e) }
-  | LPAREN; e1 = expr; e2 = expr; RPAREN { App(e1,e2) }
-  | ISZERO; LPAREN; e = expr; RPAREN { IsZero(e) }
-  | NEWREF; LPAREN; e = expr; RPAREN { NewRef(e) }
-  | DEREF; LPAREN; e = expr; RPAREN { DeRef(e) }
-  | SETREF; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { SetRef(e1,e2) }
-  | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { ITE(e1,e2,e3) }
-  | SET; x = ID; EQUALS; e = expr { Set(x,e) }
-  | BEGIN; es = exprs; END { BeginEnd(es) }
-  | LPAREN; e = expr; RPAREN {e}
-  (* | MINUS e = expr %prec UMINUS { Sub(Int 0, e) } *)
-  | LPAREN; MINUS e = expr; RPAREN  { Sub(Int 0, e) }
-  | ABS; LPAREN; e = expr; RPAREN { Abs(e) }
-  | EMPTYLIST { EmptyList }
-  | HD; LPAREN; e = expr; RPAREN { Hd(e) }
-  | TL; LPAREN; e = expr; RPAREN { Tl(e) }
-  | NULL; LPAREN; e = expr; RPAREN { Null(e) }
-  | CONS; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { Cons(e1, e2) }
-  ;
-
-letrecdec:
-  x = ID; LPAREN; y = ID; RPAREN; EQUALS; e1 = expr { Dec(x, y, e1) } ;
+    | i = INT { Int i }
+    | x = ID { Var x }
+    | DEBUG { Debug }
+    | e1 = expr; PLUS; e2 = expr { Add(e1,e2) }
+    | e1 = expr; MINUS; e2 = expr { Sub(e1,e2) }
+    | e1 = expr; TIMES; e2 = expr { Mul(e1,e2) }
+    | e1 = expr; DIVIDED; e2 = expr { Div(e1,e2) }
+    | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let(x,e1,e2) }
+    | LETREC; x = ID; LPAREN; y = nonempty_list(ID); RPAREN; EQUALS; e1 = expr; IN; e2 = expr { Letrec(x,y,e1,e2) }
+    | PROC; LPAREN; vars = separated_nonempty_list(COMMA, ID); RPAREN; LBRACE; e = expr; RBRACE { Proc(vars,e) }
+    | LPAREN; e1 = expr; e2 = nonempty_list(expr); RPAREN { App(e1,e2) }
+    | ISZERO; LPAREN; e = expr; RPAREN { IsZero(e) }
+    | NEWREF; LPAREN; e = expr; RPAREN { NewRef(e) }
+    | DEREF; LPAREN; e = expr; RPAREN { DeRef(e) }
+    | SETREF; LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { SetRef(e1,e2) }
+    | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { ITE(e1,e2,e3) }
+    | SET; x = ID; EQUALS; e = expr { Set(x,e) }
+    | BEGIN; es = exprs; END { BeginEnd(es) }
+    | LPAREN; e = expr; RPAREN {e}
+      (*    | MINUS e = expr %prec UMINUS { SubExp(IntExp 0,e) }*)
+    | LPAREN; MINUS e = expr; RPAREN  { Sub(Int 0, e) }
+    | FOR; x = ID ; EQUALS; e1 = expr; TO; e2 = expr; LPAREN; e3 = expr; RPAREN { For(x, e1, e2, e3) }
+    ;
 
 exprs:
-  es = separated_list(SEMICOLON, expr)    { es } ;
+    es = separated_list(SEMICOLON, expr)    { es } ;
 
 (* And that's the end of the grammar definition. *)

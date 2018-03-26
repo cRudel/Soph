@@ -1,79 +1,86 @@
-(*
-*	Christopher Rudel
-*	interp.ml
-*	I pledge my honor that I have abided by the Stevens Honor System
-*
-*)
-
 open Ast
 open Ds
 
-let rec apply_proc f a =
+let from_some = function
+  | None -> failwith "from_some: None"
+  | Some v -> v
+
+let g_store = Store.empty_store 20 (NumVal 0)
+
+let init_env =
+  ExtendEnv("i", RefVal (Store.new_ref g_store (NumVal 1)),
+            ExtendEnv("v",RefVal (Store.new_ref g_store (NumVal 5)),
+                      ExtendEnv("x",RefVal (Store.new_ref g_store (NumVal 10)),
+                                EmptyEnv)))
+
+let rec apply_proc f l =
   match f with
-    ProcVal (x,b,env) -> eval (LetEnv (x, a, env)) b
+  | ProcVal (xs,b,env) -> failwith "implement me!"
   | _ -> failwith "apply_proc: Not a procVal"
 and
-  eval (en:env) (e:expr) :exp_val =
+  eval_expr (en:env) (e:expr):exp_val =
   match e with
-  | Int n                -> NumVal n
-  | Var x                -> lookup en x
-  | Add(e1, e2)          ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2  in
+  | Int n -> NumVal n
+  | Var id ->
+    (match apply_env en id with
+     | None -> failwith @@ "Variable "^id^" undefined"
+     | Some ev -> Store.deref g_store @@ refVal_to_int ev)
+  | ITE(e1, e2, e3) ->
+    let v1 = eval_expr en e1 in
+    if boolVal_to_bool v1
+    then eval_expr en e2
+    else eval_expr en e3
+  | Add(e1, e2) ->
+    let v1 = eval_expr en e1 in
+    let v2 = eval_expr en e2  in
     NumVal ((numVal_to_num v1) + (numVal_to_num v2))
-  | Sub(e1, e2)          ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2  in
-    NumVal ((numVal_to_num v1) - (numVal_to_num v2))
-  | Mul(e1, e2)          ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2  in
+  | Mul(e1, e2) ->
+    let v1 = eval_expr en e1 in
+    let v2 = eval_expr en e2  in
     NumVal ((numVal_to_num v1) * (numVal_to_num v2))
-  | Div(e1, e2)          ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2  in
-    NumVal ((numVal_to_num v1) / (numVal_to_num v2))
-  | IsZero(e)            ->
-    let v = eval en e in
-    let n = numVal_to_num v in
-    BoolVal (n == 0)
-  | ITE(e1, e2, e3)      ->
-    let v1 = eval en e1 in
-    if boolVal_to_bool v1 then
-      eval en e2
-    else eval en e3
-  | Abs(e1)      ->
-    let v1 = eval en e1 in
-    NumVal (abs (numVal_to_num v1))
-  | Cons(e1, e2) ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2  in
-    let l1 = listVal_to_list v2 in
-    ListVal (v1 :: l1)
-  | Hd(e1)      ->
-    let v1 = eval en e1 in
-    let l1 = listVal_to_list v1 in
-    List.hd l1
-  | Tl(e1)      ->
-    let v1 = eval en e1 in
-    let l1 = listVal_to_list v1 in
-    ListVal (List.tl l1)
-  | Null(e1)     ->
-    let v1 = eval en e1 in
-    let l1 = listVal_to_list v1 in
-    BoolVal (l1 = [])
-  | EmptyList    -> ListVal []
-  | Let(x, e1, e2)       ->
-    let v1 = eval en e1  in
-    eval (LetEnv (x, v1, en)) e2
-  | Letrec(decs, e2) ->
-    eval (LetrecEnv (decs , en)) e2
-  | Proc(x,e)            -> ProcVal (x,e,en)
-  | App(e1,e2)           ->
-    let v1 = eval en e1 in
-    let v2 = eval en e2 in
-    apply_proc v1 v2
-  | _ -> failwith("Not implemented")
+  | Sub(e1, e2) ->
+    let v1 = eval_expr en e1 in
+    let v2 = eval_expr en e2  in
+    NumVal ((numVal_to_num v1) - (numVal_to_num v2))
+  | IsZero(e) ->
+    let v1 = eval_expr en e  in
+    BoolVal (numVal_to_num v1=0)
+  | Let(x, e1, e2) ->
+    let v1 = eval_expr en e1
+    in let l = Store.new_ref g_store v1
+    in eval_expr (extend_env en x (RefVal l)) e2
+  | Proc(x,e)      -> ProcVal (x,e,en)
+  | App(e1,e2)     -> failwith "implement me!"
+  | Letrec(id,params,body,e) ->
+    eval_expr (ExtendEnvRec(id,params,body,en)) e
+  | Set(id,e) ->
+    let v=eval_expr en e
+    in Store.set_ref g_store (refVal_to_int (from_some (apply_env en id))) v;
+    UnitVal
+  | BeginEnd(es) ->
+    List.fold_left (fun v e -> eval_expr en e) UnitVal es
+  | NewRef(e) ->
+    RefVal(Store.new_ref g_store (eval_expr en e))
+  | DeRef(e) ->
+    let v1 = eval_expr en e
+    in Store.deref g_store (refVal_to_int v1)
+  | SetRef(e1,e2) ->
+    let v1=eval_expr en e1
+    in let v2=eval_expr en e2
+    in Store.set_ref g_store (refVal_to_int v1) v2;
+    UnitVal
+  | Debug ->
+    print_string "Environment:\n";
+    print_string @@ string_of_env en;
+    print_string "\nStore:\n";
+    List.iteri (fun i s -> print_string (string_of_int i^"->"
+                                         ^s^"\n")) @@ List.map
+      string_of_expval @@ Store.store_to_list g_store;
+    UnitVal
+  | _ -> failwith("Not implemented: "^string_of_expr e)
+and
+  eval_prog (Ast.AProg e) = eval_expr init_env e
+
 
 
 (***********************************************************************)
@@ -91,4 +98,59 @@ let parse s =
 
 (* Interpret an expression *)
 let interp (e:string) : exp_val =
-  e |> parse |> eval EmptyEnv
+  e |> parse |> eval_prog
+
+let ex1 = "
+let x = 7
+in let y = 2
+   in let y = let x = x-1
+              in x-y
+      in (x-8)- y"
+
+let ex2 = "
+   let g =
+      let counter = 0
+      in proc(d) {
+         begin
+           set counter = counter+1;
+           counter
+         end
+         }
+   in (g 11)-(g 22)"
+
+let ex3 = "
+  let g =
+     let counter = newref(0)
+     in proc (d) {
+         begin
+          setref(counter, deref(counter)+1);
+          deref(counter)
+         end
+       }
+  in (g 11) - (g 22)"
+
+let ex4 = "
+   let g =
+      let counter = 0
+      in proc(d) {
+         begin
+           set counter = counter+1;
+           counter
+         end
+         }
+   in debug"
+
+let ex5 = "
+let a = 3
+in let b = 3
+in let p = proc(x, y) {
+    begin
+      set x = 4;
+      set y = 4;
+      x
+    end
+  }
+in begin
+        (p a b);
+        a
+       end"
