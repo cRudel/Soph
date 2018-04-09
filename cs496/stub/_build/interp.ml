@@ -1,3 +1,11 @@
+(*
+*
+*	Christopher Rudel
+*	interp.ml CS496	
+*	I pledge my honor that I have abided by the Stevens Honor System
+*
+*)
+
 open Ast
 open Ds
 
@@ -15,7 +23,7 @@ let init_env =
 
 let rec apply_proc f l =
   match f with
-  | ProcVal (xs,b,env) -> failwith "implement me!"
+  | ProcVal (xs,b,env) -> eval_expr (ExtendEnv (List.hd xs, l, env)) b
   | _ -> failwith "apply_proc: Not a procVal"
 and
   eval_expr (en:env) (e:expr):exp_val =
@@ -24,7 +32,7 @@ and
   | Var id ->
     (match apply_env en id with
      | None -> failwith @@ "Variable "^id^" undefined"
-     | Some ev -> Store.deref g_store @@ refVal_to_int ev)
+     | Some ev ->  ev)
   | ITE(e1, e2, e3) ->
     let v1 = eval_expr en e1 in
     if boolVal_to_bool v1
@@ -47,10 +55,12 @@ and
     BoolVal (numVal_to_num v1=0)
   | Let(x, e1, e2) ->
     let v1 = eval_expr en e1
-    in let l = Store.new_ref g_store v1
-    in eval_expr (extend_env en x (RefVal l)) e2
+    in eval_expr (extend_env en x v1) e2
   | Proc(x,e)      -> ProcVal (x,e,en)
-  | App(e1,e2)     -> failwith "implement me!"
+  | App(e1,e2)     -> 
+	let v1 = eval_expr en e1 in
+	let v2 = eval_expr en (List.hd e2) in
+	apply_proc v1 v2
   | Letrec(id,params,body,e) ->
     eval_expr (ExtendEnvRec(id,params,body,en)) e
   | Set(id,e) ->
@@ -69,6 +79,12 @@ and
     in let v2=eval_expr en e2
     in Store.set_ref g_store (refVal_to_int v1) v2;
     UnitVal
+  | For(x, e1, e2, e3) -> failwith "I cant get this :(" (*
+	let v1 = eval_expr en e1 in
+	let v2 = eval_expr en e2 in
+	eval_expr en (for v = (numVal_to_num v1) to (numVal_to_num v2) do
+		eval_expr en e3 
+	done*)
   | Debug ->
     print_string "Environment:\n";
     print_string @@ string_of_env en;
