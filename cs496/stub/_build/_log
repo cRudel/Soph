@@ -1,16 +1,10 @@
 ### Starting build.
-# Target: repl.ml.depends, tags: { bin_annot, extension:ml, file:repl.ml, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules repl.ml > repl.ml.depends # cached
+# Target: checker.ml.depends, tags: { bin_annot, extension:ml, file:checker.ml, ocaml, ocamldep, package(oUnit), quiet }
+ocamlfind ocamldep -package oUnit -modules checker.ml > checker.ml.depends # cached
 # Target: ast.ml.depends, tags: { bin_annot, extension:ml, file:ast.ml, ocaml, ocamldep, package(oUnit), quiet }
 ocamlfind ocamldep -package oUnit -modules ast.ml > ast.ml.depends # cached
 # Target: ast.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, package(oUnit), quiet }
 ocamlfind ocamlc -c -bin-annot -package oUnit -o ast.cmo ast.ml # cached
-# Target: ds.ml.depends, tags: { bin_annot, extension:ml, file:ds.ml, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules ds.ml > ds.ml.depends # cached
-# Target: ds.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:ds.cmo, file:ds.ml, implem, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o ds.cmo ds.ml # cached
-# Target: interp.ml.depends, tags: { bin_annot, extension:ml, file:interp.ml, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules interp.ml > interp.ml.depends
 # Target: lexer.mll, tags: { bin_annot, extension:mll, file:lexer.mll, lexer, ocaml, ocamllex, package(oUnit), quiet }
 /usr/bin/ocamllex.opt -q lexer.mll # cached
 # Target: lexer.ml.depends, tags: { bin_annot, extension:ml, file:lexer.ml, ocaml, ocamldep, package(oUnit), quiet }
@@ -25,22 +19,10 @@ ocamlfind ocamldep -package oUnit -modules parser.mli > parser.mli.depends # cac
 ocamlfind ocamlc -c -bin-annot -package oUnit -o parser.cmi parser.mli # cached
 # Target: lexer.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:lexer.cmo, file:lexer.ml, implem, ocaml, package(oUnit), quiet }
 ocamlfind ocamlc -c -bin-annot -package oUnit -o lexer.cmo lexer.ml # cached
-# Target: store.mli.depends, tags: { bin_annot, extension:mli, file:store.mli, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules store.mli > store.mli.depends # cached
-# Target: store.cmi, tags: { bin_annot, byte, compile, extension:mli, file:store.mli, interf, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o store.cmi store.mli # cached
-# Target: interp.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:interp.cmo, file:interp.ml, implem, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o interp.cmo interp.ml
-# Target: repl.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:repl.cmo, file:repl.ml, implem, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o repl.cmo repl.ml
-# Target: parser.ml.depends, tags: { bin_annot, extension:ml, file:parser.ml, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules parser.ml > parser.ml.depends # cached
-# Target: parser.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:parser.cmo, file:parser.ml, implem, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o parser.cmo parser.ml # cached
-# Target: store.ml.depends, tags: { bin_annot, extension:ml, file:store.ml, ocaml, ocamldep, package(oUnit), quiet }
-ocamlfind ocamldep -package oUnit -modules store.ml > store.ml.depends # cached
-# Target: store.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:store.cmo, file:store.ml, implem, ocaml, package(oUnit), quiet }
-ocamlfind ocamlc -c -bin-annot -package oUnit -o store.cmo store.ml # cached
-# Target: repl.byte, tags: { bin_annot, byte, dont_link_with, extension:byte, file:repl.byte, link, ocaml, package(oUnit), program, quiet }
-ocamlfind ocamlc -linkpkg -package oUnit ast.cmo ds.cmo parser.cmo lexer.cmo store.cmo interp.cmo repl.cmo -o repl.byte
-# Compilation successful.
+# Target: checker.cmo, tags: { bin_annot, byte, compile, extension:cmo, extension:ml, file:checker.cmo, file:checker.ml, implem, ocaml, package(oUnit), quiet }
+ocamlfind ocamlc -c -bin-annot -package oUnit -o checker.cmo checker.ml
++ ocamlfind ocamlc -c -bin-annot -package oUnit -o checker.cmo checker.ml
+File "checker.ml", line 114, characters 32-46:
+Error: Unbound value List.assoc_opt
+Command exited with code 2.
+# Compilation unsuccessful.

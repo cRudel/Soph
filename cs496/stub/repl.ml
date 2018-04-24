@@ -1,6 +1,6 @@
 open Ast
 open Ds
-open Interp
+
 
 let rec repl (mode:string):unit =
   output_string stdout (mode ^"> ");
@@ -24,4 +24,5 @@ let rec repl (mode:string):unit =
 
 
 (* "Main program" *)
-let () = repl "e"
+(*   let () = repl "e" *)
+let main () = repl "e"

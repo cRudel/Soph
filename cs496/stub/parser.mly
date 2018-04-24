@@ -45,10 +45,15 @@ open Ast
 %token DEREF
 %token SETREF
 %token SEMICOLON
-%token FOR
-%token TO
 %token DEBUG
+%token INTTYPE
+%token BOOLTYPE
+%token UNITTYPE
+%token ARROW
+%token REFTYPE
 %token COMMA
+%token DOT
+%token COLON
 %token EOF
 
 (* After declaring the tokens, we have to provide some additional information
@@ -62,9 +67,12 @@ open Ast
    Because PLUS has higher precedence than IN, "let x=1 in x+2" will
    parse as "let x=1 in (x+2)" and not as "(let x=1 in x)+2". *)
 
-%nonassoc IN ELSE EQUALS            /* lowest precedence */
-%left PLUS MINUS
+%nonassoc  IN ELSE EQUALS            /* lowest precedence */
+                                        %right ARROW
+                                        %left PLUS MINUS
 %left TIMES DIVIDED    /* highest precedence */
+                          %left DOT    /* highest precedence */
+                                            %nonassoc REFTYPE
                           (*%nonassoc UMINUS        /* highest precedence */*)
 
 
@@ -143,9 +151,9 @@ expr:
     | e1 = expr; TIMES; e2 = expr { Mul(e1,e2) }
     | e1 = expr; DIVIDED; e2 = expr { Div(e1,e2) }
     | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let(x,e1,e2) }
-    | LETREC; x = ID; LPAREN; y = nonempty_list(ID); RPAREN; EQUALS; e1 = expr; IN; e2 = expr { Letrec(x,y,e1,e2) }
-    | PROC; LPAREN; vars = separated_nonempty_list(COMMA, ID); RPAREN; LBRACE; e = expr; RBRACE { Proc(vars,e) }
-    | LPAREN; e1 = expr; e2 = nonempty_list(expr); RPAREN { App(e1,e2) }
+    | LETREC; tr=texpr; x = ID; LPAREN; y = ID; COLON; targ=texpr; RPAREN; EQUALS; e1 = expr; IN; e2 = expr { Letrec(tr,x,y,targ,e1,e2) }
+    | PROC; LPAREN; x = ID; COLON; t=texpr; RPAREN; LBRACE; e = expr; RBRACE { Proc(x,t,e) }
+    | LPAREN; e1 = expr; e2 = expr; RPAREN { App(e1,e2) }
     | ISZERO; LPAREN; e = expr; RPAREN { IsZero(e) }
     | NEWREF; LPAREN; e = expr; RPAREN { NewRef(e) }
     | DEREF; LPAREN; e = expr; RPAREN { DeRef(e) }
@@ -156,10 +164,27 @@ expr:
     | LPAREN; e = expr; RPAREN {e}
       (*    | MINUS e = expr %prec UMINUS { SubExp(IntExp 0,e) }*)
     | LPAREN; MINUS e = expr; RPAREN  { Sub(Int 0, e) }
-    | FOR; x = ID ; EQUALS; e1 = expr; TO; e2 = expr; LPAREN; e3 = expr; RPAREN { For(x, e1, e2, e3) }
+    | LBRACE; fs = separated_list(SEMICOLON, field);
+      RBRACE { Record(fs) }
+    | e1=expr; DOT; id=ID { Proj(e1,id) }
     ;
 
 exprs:
     es = separated_list(SEMICOLON, expr)    { es } ;
 
-(* And that's the end of the grammar definition. *)
+field:
+      id = ID; EQUALS; e=expr { (id,e) }
+
+texpr:
+    | INTTYPE { IntType }
+    | BOOLTYPE { BoolType }
+    | UNITTYPE { UnitType }
+    | t1 = texpr; ARROW; t2 = texpr { FuncType(t1,t2) }
+    | LPAREN; t1 = texpr; RPAREN { t1 }
+    | REFTYPE; t1 = texpr { RefType(t1) }
+    | LBRACE; ts = separated_list(SEMICOLON, fieldtype); RBRACE { RecordType(ts) }
+
+fieldtype:
+      id = ID; COLON; t=texpr { (id,t) }
+
+                                 (* And that's the end of the grammar definition. *)

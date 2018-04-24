@@ -9,9 +9,9 @@
     let new_array = Array.make (st.size*2) value
     in Array.blit st.data 0 new_array 0 st.size;
     st.data<-new_array
-
+      
 let new_ref st value =
-  if Array.length (st.data)=st.size
+  if Array.length (st.data)=st.size      
   then enlarge_store st value
   else ();
   begin
@@ -27,13 +27,13 @@ let new_ref st value =
   let set_ref st ref value =
   if ref>=st.size
   then failwith "Index out of bounds"
-  else
+  else 
     st.data.(ref)<-value
-
+    
   let rec take n = function
     | [] -> []
     |  x::xs when n>0 -> x::take (n-1) xs
     | x::xs -> []
-
+             
   let store_to_list st =
     take st.size @@ Array.to_list @@ st.data

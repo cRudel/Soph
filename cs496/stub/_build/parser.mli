@@ -2,13 +2,14 @@
 (* The type of tokens. *)
 
 type token = 
-  | TO
+  | UNITTYPE
   | TIMES
   | THEN
   | SETREF
   | SET
   | SEMICOLON
   | RPAREN
+  | REFTYPE
   | RBRACE
   | PROC
   | PLUS
@@ -19,20 +20,24 @@ type token =
   | LET
   | LBRACE
   | ISZERO
+  | INTTYPE
   | INT of (int)
   | IN
   | IF
   | ID of (string)
-  | FOR
   | EQUALS
   | EOF
   | END
   | ELSE
+  | DOT
   | DIVIDED
   | DEREF
   | DEBUG
   | COMMA
+  | COLON
+  | BOOLTYPE
   | BEGIN
+  | ARROW
 
 (* This exception is raised by the monolithic API functions. *)
 
